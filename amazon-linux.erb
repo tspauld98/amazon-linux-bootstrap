@@ -1,0 +1,112 @@
+bash -c '
+# sudo visudo
+#   Defaults env_keep += "PATH"
+#   Defaults !secure_path
+#
+# knife bootstrap ADDRESS --sudo -x ec2-user -i ~/.ssh/ec2.pem -N NODE_NAME -d amazon-linux
+#
+# --------------------------------------------------------
+# development tools
+# --------------------------------------------------------
+hash gcc &> /dev/null
+
+if [ $? -eq 1 ]; then
+  sudo yum -y install openssl-devel zlib-devel gcc gcc-c++ make autoconf readline-devel curl-devel expat-devel gettext-devel
+fi
+
+# --------------------------------------------------------
+# git
+# --------------------------------------------------------
+hash git &> /dev/null
+
+if [ $? -eq 1 ]; then
+  echo "***"
+  echo "*** Installing git"
+  echo "***"
+  yum -y install git
+else
+  echo "***"
+  echo "*** `git --version`"
+  echo "***"
+fi
+
+# --------------------------------------------------------
+# rbenv
+# --------------------------------------------------------
+hash rbenv &> /dev/null
+
+if [ $? -eq 1 ]; then
+  echo "***"
+  echo "*** Installing rbenv"
+  echo "***"
+  git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv
+
+  echo "# rbenv setup" > /etc/profile.d/rbenv.sh
+  echo "export RBENV_ROOT=/usr/local/rbenv" >> /etc/profile.d/rbenv.sh
+  echo "export PATH=\"\$RBENV_ROOT/bin:\$PATH\"" >> /etc/profile.d/rbenv.sh
+  echo "eval \"\$(rbenv init -)\"" >> /etc/profile.d/rbenv.sh
+
+  chmod +x /etc/profile.d/rbenv.sh
+  source /etc/profile.d/rbenv.sh
+fi
+
+# --------------------------------------------------------
+# ruby 1.9.2
+# --------------------------------------------------------
+if [[ `ruby --version` != ruby\ 1.9.2* ]]; then
+  pushd /tmp
+    git clone git://github.com/sstephenson/ruby-build.git
+    cd ruby-build
+    ./install.sh
+  popd
+
+  export PATH="$PATH:/usr/local/bin"
+  rbenv install 1.9.2-p290
+  rbenv global 1.9.2-p290
+  gem install bundler --no-rdoc --no-ri
+else
+  echo "***"
+  echo "*** `ruby --version`"
+  echo "***"
+fi
+
+# --------------------------------------------------------
+# chef-client
+# --------------------------------------------------------
+gem install ohai --no-rdoc --no-ri
+gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
+
+mkdir -p /etc/chef
+
+(
+cat <<'EOP'
+<%= validation_key %>
+EOP
+) > /tmp/validation.pem
+awk NF /tmp/validation.pem > /etc/chef/validation.pem
+rm /tmp/validation.pem
+
+<% if @chef_config[:encrypted_data_bag_secret] -%>
+(
+cat <<'EOP'
+<%= encrypted_data_bag_secret %>
+EOP
+) > /tmp/encrypted_data_bag_secret
+awk NF /tmp/encrypted_data_bag_secret > /etc/chef/encrypted_data_bag_secret
+rm /tmp/encrypted_data_bag_secret
+<% end -%>
+
+(
+cat <<'EOP'
+<%= config_content %>
+EOP
+) > /etc/chef/client.rb
+
+(
+cat <<'EOP'
+<%= { "run_list" => @run_list }.to_json %>
+EOP
+) > /etc/chef/first-boot.json
+
+chef-client -j /etc/chef/first-boot.json -E "<%= bootstrap_environment %>"
+'
