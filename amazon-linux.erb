@@ -1,10 +1,17 @@
 bash -c '
+
+# 
+# make sure sudo users have the full path...
+#
 # sudo visudo
 #   Defaults env_keep += "PATH"
 #   Defaults !secure_path
+
 #
-# knife bootstrap ADDRESS --sudo -x ec2-user -i ~/.ssh/ec2.pem -N NODE_NAME -d amazon-linux
+# run this command from this repository to bootstrap a node
 #
+#   knife bootstrap ADDRESS --sudo -x ec2-user -i ~/.ssh/ec2.pem -N NODE_NAME -d amazon-linux
+
 # --------------------------------------------------------
 # development tools
 # --------------------------------------------------------
@@ -20,34 +27,16 @@ fi
 hash git &> /dev/null
 
 if [ $? -eq 1 ]; then
-  echo "***"
-  echo "*** Installing git"
-  echo "***"
   yum -y install git
-else
-  echo "***"
-  echo "*** `git --version`"
-  echo "***"
 fi
 
 # --------------------------------------------------------
-# rbenv
+# make sure /usr/local/bin is on the path
 # --------------------------------------------------------
-hash rbenv &> /dev/null
-
-if [ $? -eq 1 ]; then
-  echo "***"
-  echo "*** Installing rbenv"
-  echo "***"
-  git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv
-
-  echo "# rbenv setup" > /etc/profile.d/rbenv.sh
-  echo "export RBENV_ROOT=/usr/local/rbenv" >> /etc/profile.d/rbenv.sh
-  echo "export PATH=\"\$RBENV_ROOT/bin:\$PATH\"" >> /etc/profile.d/rbenv.sh
-  echo "eval \"\$(rbenv init -)\"" >> /etc/profile.d/rbenv.sh
-
-  chmod +x /etc/profile.d/rbenv.sh
-  source /etc/profile.d/rbenv.sh
+if [ ! -f /etc/profile.d/usrlocal.sh ]; then
+  echo "export PATH=\"/usr/local/bin:\$PATH\"" >> /etc/profile.d/usrlocal.sh
+  chmod +x /etc/profile.d/usrlocal.sh
+  source /etc/profile.d/usrlocal.sh
 fi
 
 # --------------------------------------------------------
@@ -55,19 +44,14 @@ fi
 # --------------------------------------------------------
 if [[ `ruby --version` != ruby\ 1.9.2* ]]; then
   pushd /tmp
+    rm -rf ruby-build
     git clone git://github.com/sstephenson/ruby-build.git
     cd ruby-build
     ./install.sh
   popd
 
-  export PATH="$PATH:/usr/local/bin"
-  rbenv install 1.9.2-p290
-  rbenv global 1.9.2-p290
+  ruby-build 1.9.2-p290 /usr/local
   gem install bundler --no-rdoc --no-ri
-else
-  echo "***"
-  echo "*** `ruby --version`"
-  echo "***"
 fi
 
 # --------------------------------------------------------
