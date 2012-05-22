@@ -40,17 +40,10 @@ if [ ! -f /etc/profile.d/usrlocal.sh ]; then
 fi
 
 # --------------------------------------------------------
-# ruby 1.9.2
+# ruby 1.9.3
 # --------------------------------------------------------
-if [[ `ruby --version` != ruby\ 1.9.2* ]]; then
-  pushd /tmp
-    rm -rf ruby-build
-    git clone git://github.com/sstephenson/ruby-build.git
-    cd ruby-build
-    ./install.sh
-  popd
-
-  ruby-build 1.9.2-p290 /usr/local
+if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
+  yum -y install ruby19
   gem install bundler --no-rdoc --no-ri
 fi
 
