@@ -43,10 +43,9 @@ fi
 # ruby 1.9.3
 # --------------------------------------------------------
 if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
-  yum -y install ruby19
+  yum -y install ruby19 rubygems19
 fi
 
-yum -y install rubygems
 gem install bundler --no-rdoc --no-ri
 
 # --------------------------------------------------------
