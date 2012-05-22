@@ -44,8 +44,10 @@ fi
 # --------------------------------------------------------
 if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
   yum -y install ruby19
-  gem install bundler --no-rdoc --no-ri
 fi
+
+yum -y install rubygems
+gem install bundler --no-rdoc --no-ri
 
 # --------------------------------------------------------
 # chef-client
