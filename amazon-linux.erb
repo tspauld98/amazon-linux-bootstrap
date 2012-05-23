@@ -43,10 +43,16 @@ fi
 # ruby 1.9.3
 # --------------------------------------------------------
 if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
-  yum -y install ruby19 rubygems19
-fi
+  pushd /tmp
+    rm -rf ruby-build
+    git clone git://github.com/sstephenson/ruby-build.git
+    cd ruby-build
+    ./install.sh
+  popd
 
-gem install bundler --no-rdoc --no-ri
+  ruby-build 1.9.3-p125 /usr/local
+  gem install bundler --no-rdoc --no-ri
+fi
 
 # --------------------------------------------------------
 # chef-client
