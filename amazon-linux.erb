@@ -33,6 +33,7 @@ fi
 # --------------------------------------------------------
 # make sure /usr/local/bin is on the path
 # --------------------------------------------------------
+
 if [ ! -f /etc/profile.d/usrlocal.sh ]; then
   echo "export PATH=\"/usr/local/bin:\$PATH\"" >> /etc/profile.d/usrlocal.sh
   chmod +x /etc/profile.d/usrlocal.sh
@@ -42,21 +43,25 @@ fi
 # --------------------------------------------------------
 # ruby 1.9.3
 # --------------------------------------------------------
-if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
-  pushd /tmp
-    rm -rf ruby-build
-    git clone git://github.com/sstephenson/ruby-build.git
-    cd ruby-build
-    ./install.sh
-  popd
 
-  ruby-build 1.9.3-p125 /usr/local
-  gem install bundler --no-rdoc --no-ri
+if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
+  yum groupinstall -y 'Development tools'
+  yum install -y libxml2-devel libxslt-devel
+  yum install -y ruby19 ruby19-devel rubygems19 rubygem19-rdoc rubygem19-rake rubygem19-bigdecimal
+  ln -sf /usr/bin/ruby1.9 /usr/bin/ruby
+  ln -sf /usr/bin/gem1.9 /usr/bin/gem
+  ln -sf /usr/bin/irb1.9 /usr/bin/irb
+  ln -sf /usr/bin/rdoc1.9 /usr/bin/rdoc
+  ln -sf /usr/bin/rake1.9 /usr/bin/rake
 fi
+
+gem update --system
+gem install bundler bigdecimal rdoc rake yaml multi_json aws-sdk fog --no-rdoc --no-ri --verbose
 
 # --------------------------------------------------------
 # chef-client
 # --------------------------------------------------------
+
 gem install ohai --no-rdoc --no-ri
 gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
 
