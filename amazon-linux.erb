@@ -1,6 +1,6 @@
 bash -c '
 
-# 
+#
 # make sure sudo users have the full path...
 #
 # sudo visudo
@@ -45,7 +45,7 @@ fi
 # --------------------------------------------------------
 
 if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
-  yum groupinstall -y 'Development tools'
+  yum groupinstall -y "Development tools"
   yum install -y libxml2-devel libxslt-devel
   yum install -y ruby19 ruby19-devel rubygems19 rubygem19-rdoc rubygem19-rake rubygem19-bigdecimal
   ln -sf /usr/bin/ruby1.9 /usr/bin/ruby
@@ -55,15 +55,15 @@ if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
   ln -sf /usr/bin/rake1.9 /usr/bin/rake
 fi
 
-gem update --system
-gem install bundler bigdecimal rdoc rake yaml multi_json aws-sdk fog --no-rdoc --no-ri --verbose
+gem update --system --no-document
+gem install bundler bigdecimal rdoc rake multi_json aws-sdk fog --no-document
 
 # --------------------------------------------------------
 # chef-client
 # --------------------------------------------------------
 
-gem install ohai --no-rdoc --no-ri
-gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
+gem install ohai --no-document
+gem install chef --no-document <%= bootstrap_version_string %>
 
 mkdir -p /etc/chef
 
