@@ -18,7 +18,8 @@ bash -c '
 hash gcc &> /dev/null
 
 if [ $? -eq 1 ]; then
-  sudo yum -y install openssl-devel zlib-devel gcc gcc-c++ make autoconf readline-devel curl-devel expat-devel gettext-devel
+  yum groupinstall -y "Development tools"
+  yum install -y libxml2-devel libxslt-devel
 fi
 
 # --------------------------------------------------------
@@ -27,7 +28,7 @@ fi
 hash git &> /dev/null
 
 if [ $? -eq 1 ]; then
-  yum -y install git
+  yum install -y git
 fi
 
 # --------------------------------------------------------
@@ -45,8 +46,6 @@ fi
 # --------------------------------------------------------
 
 if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
-  yum groupinstall -y "Development tools"
-  yum install -y libxml2-devel libxslt-devel
   yum install -y ruby19 ruby19-devel rubygems19 rubygem19-rdoc rubygem19-rake rubygem19-bigdecimal
   ln -sf /usr/bin/ruby1.9 /usr/bin/ruby
   ln -sf /usr/bin/gem1.9 /usr/bin/gem
