@@ -54,7 +54,7 @@ if [[ `ruby --version` != ruby\ 1.9.3* ]]; then
   ln -sf /usr/bin/rake1.9 /usr/bin/rake
 fi
 
-gem update --system --no-document
+gem update --system --no-rdoc --no-ri
 gem install bundler bigdecimal rdoc rake multi_json aws-sdk fog --no-document
 
 # --------------------------------------------------------
